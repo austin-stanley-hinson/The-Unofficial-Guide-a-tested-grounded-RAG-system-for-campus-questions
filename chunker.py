@@ -91,13 +91,76 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
     "chunker.py::split_documents" so your README's Sample Chunks section names
     the right function. `app.py chunks` prints that string for you.
 
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    Strategy for campus_life: one post is one chunk.
+
+    Every post is a title line followed by a few short paragraphs, 178–549
+    characters in total, and the title is often the only place the subject
+    (which course, which hall) is named. So:
+
+      - Paragraphs are packed whole, never cut mid-sentence, up to
+        config.CHUNK_SIZE characters. At 600, every post in the corpus fits
+        in one chunk.
+      - If a post ever runs longer, it splits on a paragraph break and the
+        title line is repeated at the top of every piece. That repeated title
+        is the overlap: it carries the subject, where a window of borrowed
+        characters would carry half a sentence.
+      - A paragraph longer than CHUNK_SIZE on its own falls back to splitting
+        on sentence ends.
     """
-    return fallback_split(documents)
+    size = config.CHUNK_SIZE
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
+        title, body = paragraphs[0], paragraphs[1:]
+        room = size - len(title) - 2
+
+        pieces: list[str] = []
+        current = ""
+        for para in _fit(body, room):
+            candidate = f"{current}\n\n{para}" if current else para
+            if current and len(candidate) > room:
+                pieces.append(current)
+                current = para
+            else:
+                current = candidate
+        if current or not pieces:
+            pieces.append(current)
+
+        for index, piece in enumerate(pieces):
+            text = f"{title}\n\n{piece}" if piece else title
+            chunks.append(
+                Chunk(
+                    text=text,
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+
+    return chunks
+
+
+def _fit(paragraphs: list[str], room: int) -> list[str]:
+    """Break any paragraph longer than `room` on sentence ends, keep the rest."""
+    import re
+
+    out: list[str] = []
+    for para in paragraphs:
+        if len(para) <= room:
+            out.append(para)
+            continue
+        current = ""
+        for sentence in re.split(r"(?<=[.!?])\s+", para):
+            candidate = f"{current} {sentence}" if current else sentence
+            if current and len(candidate) > room:
+                out.append(current)
+                current = sentence
+            else:
+                current = candidate
+        if current:
+            out.append(current)
+    return out
 
 
 def describe(chunks: list[Chunk]) -> str:
