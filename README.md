@@ -236,6 +236,26 @@ the citation list was gone.
      claims earns nothing.
      ───────────────────────────────────────────────────────────────────────── -->
 
+## Stretch Features
+
+Declared here before building any of them. Results for each are filled in
+below as it's finished.
+
+1. **Metadata filtering.** Every chunk gets a `category` from its filename
+   prefix (`admin`, `course`, `dining`, `housing`, …) alongside its `source`.
+   `retrieve` and `ask` get `--category` and `--source` flags that narrow the
+   search to those chunks. The point is the sibling problem: a laundry
+   question restricted to one hall's files can't pull in another hall's.
+2. **Conversational memory.** A `python app.py chat` mode where a follow-up
+   ("what about before 11:45?") is rewritten into a standalone question using
+   the previous turn before retrieval runs, and the previous exchange is
+   passed to the model with the new excerpts.
+3. **A second embedding model.** Index the same chunks with
+   `all-mpnet-base-v2` (768 dimensions, via `sentence-transformers`) as a
+   separate variant, and re-run the same ten cutoff questions plus the
+   borderline probes against both. I'll record which results and distances
+   moved, and whether my 0.7 cutoff still holds.
+
 ---
 
 # Unit 2
