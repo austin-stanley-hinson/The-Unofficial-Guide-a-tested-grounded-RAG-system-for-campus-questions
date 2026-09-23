@@ -305,6 +305,62 @@ gate. "How much does it cost?" unfiltered has a best distance of 0.582
 refuses. A filter can push a question from "answered" to "refused" when the
 nearest chunk overall is outside the category.
 
+### Stretch 2 result: conversational memory
+
+**What I built:** `python app.py chat`. Every turn after the first goes
+through `generate.py::rewrite_followup`, which uses one model call to turn
+the follow-up into a standalone question using the last
+`CHAT_MEMORY_TURNS = 2` turns. Retrieval and the relevance gate then run on
+the rewritten question, not the raw one. That was the key decision:
+retrieval embeds only the question, so "does it close…" with no subject
+would search for nothing in particular. The earlier exchange also goes into
+the answer prompt (`build_prompt(..., history=...)`), marked "for context
+only; facts must still come from the documents".
+
+**Two-turn exchange where the second answer depends on the first:**
+
+```
+$ python app.py chat
+> How long is the lunch wait at Kestrel Commons?
+  (best distance 0.183, cutoff 0.7)
+
+The lunch wait at Kestrel Commons is 20 to 25 minutes between 12:15 and 1:00, and under 5 minutes before 11:45.
+Sources: dining_kestrel_commons.txt, dining_kestrel_commons_followup.txt
+
+> What time does it close on weekends?
+  (searched as: What time does Kestrel Commons close on weekends?)
+  (best distance 0.407, cutoff 0.7)
+
+Kestrel Commons is open until 9:00pm on weekdays and 8:00pm on weekends. Halden Hall closes at 7:00pm on weekdays and is closed Sundays.
+Sources: dining_kestrel_commons.txt, dining_halden_hall.txt
+
+> Is the salad bar any good there?
+  (searched as: Is the salad bar at Kestrel Commons any good?)
+  (best distance 0.357, cutoff 0.7)
+
+The salad bar at Kestrel Commons wilts after 1:30.
+Sources: dining_kestrel_commons.txt, dining_kestrel_commons_followup.txt
+```
+
+"It" in turn 2 and "there" in turn 3 only mean Kestrel Commons because of
+turn 1. Without memory, the same second question gets nothing useful:
+
+```
+$ python app.py ask "What time does it close on weekends?"
+  (best distance 0.488, cutoff 0.7)
+I do not have enough information to answer what time it closes on weekends.
+Sources retrieved: dining_halden_hall.txt, dining_halden_hall_followup.txt, dining_north_kitchen_followup.txt, housing_calder_annexe_noise.txt, transit_shuttle.txt
+```
+
+Without the subject, retrieval drifted to Halden Hall and the shuttle, and
+`dining_kestrel_commons.txt` didn't even make the top 5. The rewrite brought
+the best distance from 0.488 down to 0.407 and put the right file first.
+
+**What's still wrong:** the turn 2 answer volunteers Halden Hall's hours,
+which nobody asked about. Halden was retrieved alongside Kestrel and the
+model used it. The cost is one extra model call per follow-up (4 calls for
+the 3-turn exchange above instead of 3).
+
 ---
 
 # Unit 2

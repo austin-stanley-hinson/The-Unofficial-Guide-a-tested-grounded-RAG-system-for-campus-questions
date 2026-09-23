@@ -284,7 +284,38 @@ Rules:
 - Be brief. Two or three sentences is usually enough."""
 
 
-def build_prompt(question: str, results) -> str:
+def _format_history(history) -> str:
+    """Previous (question, answer) turns, oldest first, as plain text."""
+    return "\n\n".join(f"Q: {q}\nA: {a}" for q, a in history)
+
+
+REWRITE_INSTRUCTION = """You rewrite follow-up questions so they can be understood on their own.
+
+Given a conversation so far and a new question, rewrite the new question as a single standalone question that names whatever it refers back to (the course, residence hall, dining hall, or topic).
+- If the new question is already standalone, return it unchanged.
+- Do not answer it. Do not add facts that are not in the conversation.
+- Output only the rewritten question, on one line."""
+
+
+def rewrite_followup(question: str, history, cache: bool = True) -> str:
+    """
+    Turn "what about on weekends?" into "What are Kestrel Commons' weekend hours?".
+
+    Conversational memory (stretch). Retrieval embeds the question alone, so a
+    follow-up that says "it" or "there" would search for nothing in particular.
+    Rewriting it first means the gate and retrieval see the real subject.
+    """
+    if not history:
+        return question
+    prompt = (
+        f"Conversation so far:\n\n{_format_history(history)}\n\n"
+        f"New question: {question}\n\nStandalone question:"
+    )
+    rewritten = generate(prompt, system=REWRITE_INSTRUCTION, cache=cache).strip()
+    return rewritten.splitlines()[0].strip() if rewritten else question
+
+
+def build_prompt(question: str, results, history=None) -> str:
     """
     Assemble the grounded prompt out of retrieved chunks.
 
@@ -296,14 +327,20 @@ def build_prompt(question: str, results) -> str:
     context = "\n\n".join(
         f"[from {r.source}]\n{r.text}" for r in results
     )
+    earlier = ""
+    if history:
+        earlier = (
+            f"Earlier in this conversation (for context only; facts must "
+            f"still come from the documents):\n\n{_format_history(history)}\n\n---\n\n"
+        )
     return (
-        f"Documents:\n\n{context}\n\n"
+        f"{earlier}Documents:\n\n{context}\n\n"
         f"---\n\nQuestion: {question}\n\n"
         f"Answer using only the documents above, and name the file you used."
     )
 
 
-def answer_from_chunks(question: str, results, cache: bool = True) -> str:
+def answer_from_chunks(question: str, results, cache: bool = True, history=None) -> str:
     """
     Build a grounded prompt out of retrieved chunks and send it.
 
@@ -311,5 +348,5 @@ def answer_from_chunks(question: str, results, cache: bool = True) -> str:
     first — it has already decided these chunks are close enough to be worth
     answering from.
     """
-    prompt = build_prompt(question, results)
+    prompt = build_prompt(question, results, history=history)
     return generate(prompt, system=GROUNDING_INSTRUCTION, cache=cache)

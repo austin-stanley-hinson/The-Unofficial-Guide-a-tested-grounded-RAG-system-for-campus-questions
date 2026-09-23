@@ -38,6 +38,11 @@ CHUNK_OVERLAP = 0       # characters shared between neighbouring chunks
 
 TOP_K = 5               # how many chunks to pull back per question
 
+# Conversational memory (stretch): how many earlier turns `app.py chat` passes
+# along. Two is enough for "and what about...?" follow-ups without the prompt
+# filling up with old excerpts' answers.
+CHAT_MEMORY_TURNS = 2
+
 # The relevance gate. If the best chunk is further away than this, the system
 # refuses to answer instead of handing the model thin material.
 #

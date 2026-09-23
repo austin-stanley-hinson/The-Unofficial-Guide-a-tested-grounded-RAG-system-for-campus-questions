@@ -7,6 +7,7 @@ The Unofficial Guide — command line.
     python app.py ask                    ask questions until you quit
     python app.py chunks                 print sample chunks      (Milestone 3)
     python app.py retrieve "question"    show distances, no answer (Milestone 4)
+    python app.py chat                   ask follow-ups that build on earlier answers
     python app.py corpora                list the available corpora
 
 Every command takes --corpus NAME to work with a different corpus without
@@ -192,6 +193,7 @@ def ask_pipeline(
     on_prompt=None,
     category=None,
     source=None,
+    history=None,
 ):
     """Retrieve, gate, answer. Returns the outcome and prints nothing.
 
@@ -210,10 +212,14 @@ def ask_pipeline(
     """
     from store import search
     import gate
-    from generate import answer_from_chunks, build_prompt
+    from generate import answer_from_chunks, build_prompt, rewrite_followup
+
+    # Conversational memory: a follow-up is rewritten into a standalone
+    # question first, so retrieval and the gate see what it's actually about.
+    standalone = rewrite_followup(question, history) if history else question
 
     results = search(
-        question,
+        standalone,
         top_k=top_k or config.TOP_K,
         corpus=corpus or config.CORPUS,
         variant=variant,
@@ -226,6 +232,7 @@ def ask_pipeline(
 
     outcome = {
         "question": question,
+        "standalone_question": standalone,
         "refused": not decision.passed,
         "best_distance": decision.best_distance,
         "threshold": decision.threshold,
@@ -237,12 +244,12 @@ def ask_pipeline(
         outcome["answer"] = gate.REFUSAL
         return outcome
 
-    prompt = build_prompt(question, results)
+    prompt = build_prompt(question, results, history=history)
     if on_prompt is not None:
         on_prompt(prompt)
 
     outcome["prompt"] = prompt
-    outcome["answer"] = answer_from_chunks(question, results)
+    outcome["answer"] = answer_from_chunks(question, results, history=history)
     outcome["sources"] = sorted({r.source for r in results})
     return outcome
 
@@ -346,6 +353,47 @@ def _add_filter_args(p):
     p.add_argument("--source", help="only search chunks from this exact file, e.g. admin_dining_dollars.txt")
 
 
+def cmd_chat(args):
+    """Conversational memory (stretch): follow-ups build on earlier turns."""
+    import generate as gen
+
+    corpus = args.corpus or config.CORPUS
+    history: list[tuple[str, str]] = []
+    print("Chat mode: follow-up questions can refer back to earlier ones.")
+    print("Press Enter on an empty line to quit.\n")
+    try:
+        while True:
+            try:
+                question = input("> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print()
+                break
+            if not question:
+                break
+            outcome = ask_pipeline(
+                question,
+                corpus=corpus,
+                variant=args.variant,
+                top_k=args.top_k,
+                threshold=args.threshold,
+                category=args.category,
+                source=args.source,
+                history=history[-config.CHAT_MEMORY_TURNS:],
+            )
+            if outcome["standalone_question"] != question:
+                print(f"  (searched as: {outcome['standalone_question']})")
+            print(
+                f"  (best distance {outcome['best_distance']:.3f}, "
+                f"cutoff {outcome['threshold']})"
+            )
+            print(f"\n{outcome['answer']}\n")
+            if outcome["sources"]:
+                print(f"Sources retrieved: {', '.join(outcome['sources'])}\n")
+            history.append((outcome["standalone_question"], outcome["answer"]))
+    finally:
+        print(gen.usage())
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="app.py",
@@ -402,6 +450,12 @@ def build_parser():
     )
     _add_filter_args(p_ask)
     p_ask.set_defaults(func=cmd_ask)
+
+    p_chat = sub.add_parser("chat", help="ask follow-up questions that build on earlier ones")
+    p_chat.add_argument("--top-k", type=int)
+    p_chat.add_argument("--threshold", type=float, help="override the gate cutoff")
+    _add_filter_args(p_chat)
+    p_chat.set_defaults(func=cmd_chat)
 
     return parser
 
