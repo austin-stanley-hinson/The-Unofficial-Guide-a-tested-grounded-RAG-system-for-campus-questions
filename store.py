@@ -159,7 +159,7 @@ def build_index(
         name=name,
         # ⚠️ Do not remove. Chroma defaults to squared L2, and every distance
         # number in this course assumes cosine.
-        metadata={"hnsw:space": "cosine"},
+        metadata={"hnsw:space": "cosine", "embedding_model": config.EMBEDDING_MODEL},
     )
 
     batch = 256
@@ -209,6 +209,15 @@ def search(
         raise RuntimeError(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
+
+    built_with = (collection.metadata or {}).get("embedding_model")
+    if built_with and built_with != config.EMBEDDING_MODEL:
+        raise RuntimeError(
+            f"Index '{name}' was built with {built_with!r} but "
+            f"EMBEDDING_MODEL is {config.EMBEDDING_MODEL!r}. Distances between "
+            f"two different models mean nothing. Set AI201_EMBEDDING_MODEL="
+            f"{built_with} or search a different --variant."
+        )
 
     filters = []
     if category:

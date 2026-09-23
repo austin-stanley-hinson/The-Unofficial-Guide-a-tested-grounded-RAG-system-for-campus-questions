@@ -361,6 +361,70 @@ which nobody asked about. Halden was retrieved alongside Kestrel and the
 model used it. The cost is one extra model call per follow-up (4 calls for
 the 3-turn exchange above instead of 3).
 
+### Stretch 3 result: a second embedding model
+
+**What I built:** `EMBEDDING_MODEL` in `config.py` can now be overridden with
+`AI201_EMBEDDING_MODEL`. I indexed the same 88 chunks with
+`all-mpnet-base-v2` (768 dimensions, loaded through `sentence-transformers`)
+as a separate variant, so the default MiniLM index stayed untouched:
+
+```
+pip install 'sentence-transformers>=3.4,<3.5'
+AI201_EMBEDDING_MODEL=all-mpnet-base-v2 python app.py --variant mpnet index
+AI201_EMBEDDING_MODEL=all-mpnet-base-v2 python app.py --variant mpnet retrieve "..."
+```
+
+Each index records which model built it, and `store.py::search` refuses to
+search it with a different one. Comparing distances across two models is
+meaningless, and that's an easy mistake to make without noticing.
+`tools/compare_embeddings.py` ran all 17 queries (my 5, the 5 `OUT_OF_SCOPE`,
+and the 7 borderline probes) against both indexes. The raw top-5 lists are
+in `results/embedding_minilm.json` and `results/embedding_mpnet.json`.
+
+**Best distance and top result, same queries, both models:**
+
+| Question | MiniLM (default) | mpnet | Top result changed? |
+|---|---|---|---|
+| Is the CS 210 final exam curved? | 0.3596 `course_cs_210_exams` | 0.4431 `course_phys_130_exams` | **Worse:** right file drops to #3 (0.5557) |
+| How many hours a week does CS 210 take outside class? | 0.3003 | 0.3683 | Same (`course_cs_210_workload`) |
+| When is the best time to do laundry in Fenwick Court? | 0.2951 | 0.2568 | Same; `transit_walking` at #3 replaced by another laundry post |
+| How long is the lunch wait at Kestrel Commons? | 0.1832 `…_followup` | 0.1871 `dining_kestrel_commons` | Swapped the two Kestrel posts |
+| Do dining dollars roll over from spring to fall? | 0.2192 | 0.2210 | Same |
+| What is the capital of Mongolia? | 0.8246 | 0.8134 | Same |
+| How do I change the oil in a diesel engine? | 0.9340 | 0.8163 | Now all 5 are laundry posts ("machines") |
+| Who won the 1994 World Cup? | 0.8859 | 0.9135 | Same |
+| Ibuprofen dosage for a headache? | 0.8442 | 0.8515 | Different, still unrelated |
+| How do I write a for loop in Rust? | 0.8960 | **0.7916** | Now laundry posts and `course_cs_210_exams` |
+| Which dorm is quietest for studying? | 0.4797 | 0.4272 | Better: top 3 are all noise posts |
+| How do I get a parking permit? | 0.5339 | 0.4849 | Same (`admin_parking_permits`) |
+| Can I bring a car? | 0.6998 | **0.7211** | Same file, but now over my 0.7 cutoff |
+
+**What moved, and in which direction:**
+
+- **In-corpus questions got further away, not closer.** 3 of my 5 test
+  questions got worse (CS 210 exams +0.08, CS 210 workload +0.07, Kestrel
+  +0.004). One improved (Fenwick laundry −0.04), and one was flat.
+- **The course-code problem got worse.** mpnet ranks "Is the CS 210 final
+  curved?" closest to PHYS 130's exam post. mpnet seems to weigh the meaning
+  of "is the final curved" over the literal course code, and in this corpus
+  the course code is the thing that matters. This is exactly the sibling
+  failure criterion 5 is about, and mpnet makes it happen at rank 1.
+- **Out-of-corpus questions got closer.** The Rust question fell from 0.896
+  to 0.792, and the diesel one from 0.934 to 0.816. mpnet matches "machines"
+  and "code" in a looser, more topical way. The gap between my two groups
+  shrank from 0.36–0.82 to 0.44–0.79.
+- **The cutoff would have to move.** At 0.7, mpnet refuses "Can I bring a
+  car?" (0.7211), which MiniLM just answered. Under mpnet the cutoff would
+  need to be about 0.75, which leaves only 0.04 of room below the Rust
+  question (0.79).
+- **Where mpnet was better:** vaguer, meaning-level questions. "Which dorm
+  is quietest?" (0.48 → 0.43, all three top hits are noise posts) and "How
+  do I get a parking permit?" (0.53 → 0.48).
+
+**Decision:** I kept `all-MiniLM-L6-v2` as the default. This corpus's hard
+part is telling near-identical siblings apart by a course code or hall name,
+and the bigger model is worse at exactly that. It also needs PyTorch.
+
 ---
 
 # Unit 2

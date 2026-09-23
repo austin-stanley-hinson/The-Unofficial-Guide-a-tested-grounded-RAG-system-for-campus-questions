@@ -68,7 +68,11 @@ THRESHOLD = 0.7
 # stretch option — switches to loading that model from Hugging Face instead,
 # which needs `pip install 'sentence-transformers>=3.4,<3.5'` first. store.py
 # says so with a real error message rather than a stack trace if you forget.
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+#
+# Stretch comparison: AI201_EMBEDDING_MODEL=all-mpnet-base-v2 in the
+# environment, together with --variant mpnet, builds and searches a second
+# index without touching the default one.
+EMBEDDING_MODEL = os.getenv("AI201_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 MODEL = os.getenv("AI201_MODEL", "gemini-3.5-flash-lite")
 
 
