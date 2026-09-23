@@ -21,11 +21,16 @@ Austin Stanley Hinson — corpus: `campus_life` (88 short student posts about di
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+The Unofficial Guide answers plain-English questions about student life at
+one university, using the `campus_life` corpus: 88 short posts written by
+students about dining halls, residence halls, specific courses, and the
+administrative rules nobody explains properly. It answers questions like
+"Is the CS 210 final curved?", "When is the laundry room empty in Fenwick
+Court?", "How long is the lunch line at Kestrel Commons?" or "Do dining
+dollars roll over?". Every answer names the post it came from. Questions the
+posts don't cover ("Who won the 1994 World Cup?") get "I don't have enough
+information about that" instead of a guess. Run it with
+`python app.py ask "your question"`.
 
 ## Chunking Strategy
 
@@ -204,18 +209,27 @@ enough information" with no citation.
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+I used Claude Code throughout. Two moments where what came back wasn't what I kept:
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
+**1. Criterion 4.** I asked Claude to help me write criterion 4 from what
+the posts looked like. Its first draft was "In 5 of 5 sampled chunks, I can
+tell which course, residence hall, or topic the chunk is about from the chunk
+alone." When I checked it against the rubric's "testable by a stranger" line,
+"I can tell" turned out to be a judgment only I could make. We rewrote it as
+two checks anyone can run: every chunk starts with its document's title
+line, and `app.py index` reports no chunk under 150 characters. The 150
+comes from the corpus: the shortest real post is 178 characters.
 
-     Milestone 5. -->
-
-**1.**
-
-**2.**
+**2. The grounding instruction.** I asked Claude to test the 0.7 cutoff on
+borderline questions. "Where can I print documents?" (0.68) passed the gate,
+and the model correctly said it didn't know. But it still listed five
+"sources" under that non-answer: `admin_printing_quota.txt`,
+`money_textbooks.txt` and three others. The starter's grounding instruction
+only says to name a file, not to name the *right* file. With 48 sibling
+files in this corpus, that's exactly the criterion 5 failure I wrote down. I
+added two rules to `GROUNDING_INSTRUCTION`: cite only files whose facts you
+used, and cite nothing when declining. Then I re-ran the same question and
+the citation list was gone.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
