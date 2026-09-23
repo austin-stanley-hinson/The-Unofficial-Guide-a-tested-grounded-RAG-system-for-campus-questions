@@ -170,7 +170,12 @@ def build_index(
             documents=[c.text for c in window],
             embeddings=embed([c.text for c in window]),
             metadatas=[
-                {"source": c.source, "index": c.index, "produced_by": c.produced_by}
+                {
+                    "source": c.source,
+                    "index": c.index,
+                    "produced_by": c.produced_by,
+                    "category": c.category,
+                }
                 for c in window
             ],
         )
@@ -183,11 +188,17 @@ def search(
     top_k: int | None = None,
     corpus: str | None = None,
     variant: str = "default",
+    category: str | None = None,
+    source: str | None = None,
 ) -> list[Result]:
     """
     Retrieve the chunks closest in meaning to a question.
 
     Returns them nearest-first, each with its distance.
+
+    `category` (e.g. "housing") and `source` (an exact filename) narrow the
+    search to chunks with that metadata. Filtering happens inside Chroma, so
+    top_k still means "the k nearest among the chunks that match".
     """
     top_k = top_k or config.TOP_K
     name = config.collection_name(corpus, variant)
@@ -199,9 +210,28 @@ def search(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
 
+    filters = []
+    if category:
+        filters.append({"category": category})
+    if source:
+        filters.append({"source": source})
+    where = None
+    if len(filters) == 1:
+        where = filters[0]
+    elif filters:
+        where = {"$and": filters}
+
+    if where is not None:
+        matching = len(collection.get(where=where, include=[])["ids"])
+        if matching == 0:
+            return []
+    else:
+        matching = collection.count()
+
     raw = collection.query(
         query_embeddings=embed([question]),
-        n_results=min(top_k, collection.count()),
+        n_results=min(top_k, matching),
+        where=where,
     )
 
     results: list[Result] = []

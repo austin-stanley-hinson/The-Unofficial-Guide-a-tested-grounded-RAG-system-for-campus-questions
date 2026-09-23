@@ -256,6 +256,55 @@ below as it's finished.
    borderline probes against both. I'll record which results and distances
    moved, and whether my 0.7 cutoff still holds.
 
+### Stretch 1 result: metadata filtering
+
+**What I built:** every chunk now stores a `category` (its filename prefix,
+from `Chunk.category` in `chunker.py`) next to `source` in Chroma.
+`store.py::search` takes `category=` and `source=` and passes them to Chroma
+as a `where` filter, so filtering happens *before* the top-k is taken, not
+after. `python app.py retrieve` and `python app.py ask` both accept
+`--category NAME` and `--source FILE`.
+
+**Same query, with and without the filter:**
+
+```
+$ python app.py ask "Where is a quiet place to study late at night?"
+  (best distance 0.481, cutoff 0.7)
+If you need quiet to work, most people go to the library, which is open until 2am during term.
+Sources: housing_fenwick_court_noise.txt, study_library_hours.txt, housing_morrow_house_noise.txt, housing_innisfree_hall_noise.txt, housing_aldridge_hall_noise.txt
+Sources retrieved: housing_aldridge_hall_noise.txt, housing_fenwick_court_noise.txt, housing_innisfree_hall_noise.txt, housing_morrow_house_noise.txt, study_library_hours.txt
+
+$ python app.py ask "Where is a quiet place to study late at night?" --category study
+  (best distance 0.485, cutoff 0.7)
+The library is open until 2am during term (and until 10pm during reading week). The third floor is silent and enforced, while the second floor is quiet in theory.
+Source: study_library_hours.txt
+Sources retrieved: study_group_rooms.txt, study_library_hours.txt
+```
+
+**What changed:** without the filter, 4 of the 5 retrieved chunks were
+residence-hall noise posts (0.481–0.495), because "quiet" and "late at
+night" are exactly their vocabulary. They all mention the library in
+passing, so the answer was a generic "go to the library" citing five files.
+With `--category study`, only the two `study_*` posts are searched (that's
+all there are), and the answer gets specific: which floor is silent, and
+reading-week hours. It cites one file. The best distance barely moved
+(0.481 → 0.485). The filter didn't find a closer chunk; it removed the
+distractors.
+
+**Second example, the sibling problem:** "When is the best time to do
+laundry in Fenwick Court?" unfiltered pulls in `transit_walking.txt` at #3
+(0.484). With `--category housing` that's replaced by
+`housing_fenwick_court.txt` (0.510), the Fenwick overview post. With
+`--source housing_fenwick_court_laundry.txt` only the one right chunk comes
+back (0.2951).
+
+**Something the filter can break:** filtering interacts with the relevance
+gate. "How much does it cost?" unfiltered has a best distance of 0.582
+(`housing_calder_annexe.txt`). With `--category dining` the best is 0.747
+(`dining_north_kitchen.txt`), which is over my 0.7 cutoff, so the gate
+refuses. A filter can push a question from "answered" to "refused" when the
+nearest chunk overall is outside the category.
+
 ---
 
 # Unit 2

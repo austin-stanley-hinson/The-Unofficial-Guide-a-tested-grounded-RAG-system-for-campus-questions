@@ -154,13 +154,20 @@ def cmd_retrieve(args):
         top_k=args.top_k or config.TOP_K,
         corpus=args.corpus or config.CORPUS,
         variant=args.variant,
+        category=args.category,
+        source=args.source,
     )
 
     if not results:
         print("Nothing came back. Have you run `python app.py index`?")
+        if args.category or args.source:
+            print("(Or no chunk matches that --category / --source filter.)")
         return
 
-    print(f"\nQuestion: {args.question}\n")
+    print(f"\nQuestion: {args.question}")
+    if args.category or args.source:
+        print(f"Filter: category={args.category or 'any'}, source={args.source or 'any'}")
+    print()
     print(f"{'#':<3} {'distance':<10} {'source':<32} preview")
     print("-" * 100)
     for i, r in enumerate(results, 1):
@@ -183,6 +190,8 @@ def ask_pipeline(
     threshold=None,
     on_gate=None,
     on_prompt=None,
+    category=None,
+    source=None,
 ):
     """Retrieve, gate, answer. Returns the outcome and prints nothing.
 
@@ -208,6 +217,8 @@ def ask_pipeline(
         top_k=top_k or config.TOP_K,
         corpus=corpus or config.CORPUS,
         variant=variant,
+        category=category,
+        source=source,
     )
     decision = gate.check(results, threshold=threshold)
     if on_gate is not None:
@@ -244,6 +255,8 @@ def _ask_one(
     threshold,
     show_distances=True,
     show_prompt=False,
+    category=None,
+    source=None,
 ):
     import gate
     from generate import GROUNDING_INSTRUCTION
@@ -271,6 +284,8 @@ def _ask_one(
         threshold=threshold,
         on_gate=print_distances if show_distances else None,
         on_prompt=print_prompt if show_prompt else None,
+        category=category,
+        source=source,
     )
 
     if outcome["refused"]:
@@ -295,6 +310,8 @@ def cmd_ask(args):
                 args.top_k,
                 args.threshold,
                 show_prompt=args.show_prompt,
+                category=args.category,
+                source=args.source,
             )
         else:
             print("Ask a question, or press Enter on an empty line to quit.\n")
@@ -313,9 +330,20 @@ def cmd_ask(args):
                     args.top_k,
                     args.threshold,
                     show_prompt=args.show_prompt,
+                    category=args.category,
+                    source=args.source,
                 )
     finally:
         print(gen.usage())
+
+
+def _add_filter_args(p):
+    """Metadata filters (stretch feature): narrow retrieval before it runs."""
+    p.add_argument(
+        "--category",
+        help="only search chunks from files starting with this prefix, e.g. housing, course, dining, admin",
+    )
+    p.add_argument("--source", help="only search chunks from this exact file, e.g. admin_dining_dollars.txt")
 
 
 def build_parser():
@@ -360,6 +388,7 @@ def build_parser():
     p_ret = sub.add_parser("retrieve", help="show distances only (Milestone 4)")
     p_ret.add_argument("question")
     p_ret.add_argument("--top-k", type=int)
+    _add_filter_args(p_ret)
     p_ret.set_defaults(func=cmd_retrieve)
 
     p_ask = sub.add_parser("ask", help="ask a question")
@@ -371,6 +400,7 @@ def build_parser():
         action="store_true",
         help="print the assembled prompt before the answer",
     )
+    _add_filter_args(p_ask)
     p_ask.set_defaults(func=cmd_ask)
 
     return parser

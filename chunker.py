@@ -41,6 +41,11 @@ class Chunk:
     def label(self) -> str:
         return f"{self.source}#{self.index}"
 
+    @property
+    def category(self) -> str:
+        """The filename prefix: admin, course, dining, housing, ... Used for filtering."""
+        return self.source.split("_", 1)[0]
+
 
 def fallback_split(
     documents: list[Document],
@@ -82,14 +87,7 @@ def fallback_split(
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
-
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
-
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
+    Split documents into chunks.
 
     Strategy for campus_life: one post is one chunk.
 
