@@ -46,7 +46,10 @@ TOP_K = 5               # how many chunks to pull back per question
 # 0.6 is a reasonable starting point, not a right answer. Milestone 4 has you
 # measure your own two groups of distances and put the cutoff in the gap.
 # Most corpora land somewhere between 0.45 and 0.75.
-THRESHOLD = 0.6
+# Milestone 4: my five campus_life questions landed at 0.18–0.36, the five
+# OUT_OF_SCOPE questions at 0.82–0.93. Short real campus questions sit higher
+# ("Where can I print documents?" 0.68), so 0.7 rather than the gap's midpoint.
+THRESHOLD = 0.7
 
 
 # ─── Models ──────────────────────────────────────────────────────────────────

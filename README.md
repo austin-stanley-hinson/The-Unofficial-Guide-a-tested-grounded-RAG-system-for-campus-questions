@@ -131,30 +131,76 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** When is the best time to do laundry in Fenwick Court?
 
 **Answer:**
 
 ```
+$ python app.py ask "When is the best time to do laundry in Fenwick Court?"
+  (best distance 0.295, cutoff 0.7)
+
+The best time to do laundry in Fenwick Court is Tuesday or Wednesday morning.
+Source: housing_fenwick_court_laundry.txt
+
+Sources retrieved: housing_aldridge_hall_laundry.txt, housing_fenwick_court_laundry.txt, housing_old_brewhouse_laundry.txt, housing_tamsin_court_laundry.txt, transit_walking.txt
 ```
 
-**My relevance cutoff:**
+Four laundry posts from four different halls came back. The answer cites only
+the Fenwick Court one, which is what criterion 5 is testing.
 
-<!-- The number you set in config.py, and how you got there.
+**My relevance cutoff:** `THRESHOLD = 0.7` in `config.py`.
 
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
+I ran each question through `python app.py retrieve` and wrote down the best
+distance:
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| Is the CS 210 final exam curved? | Yes | 0.3596 |
+| How many hours a week does CS 210 take outside class? | Yes | 0.3003 |
+| When is the best time to do laundry in Fenwick Court? | Yes | 0.2951 |
+| How long is the lunch wait at Kestrel Commons? | Yes | 0.1832 |
+| Do dining dollars roll over from spring to fall? | Yes | 0.2192 |
+| What is the capital of Mongolia? | No | 0.8246 |
+| How do I change the oil in a diesel engine? | No | 0.9340 |
+| Who won the 1994 World Cup? | No | 0.8859 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
+| How do I write a for loop in Rust? | No | 0.8960 |
+
+The two groups are far apart: in-corpus 0.18–0.36, out-of-corpus 0.82–0.93,
+with nothing between 0.36 and 0.82. The ibuprofen question I was worried
+about in criterion 3 didn't land near `health_center.txt` at all. Its closest
+chunk was `money_textbooks.txt` at 0.84.
+
+The midpoint of that gap is about 0.59, so the starter's 0.6 would have
+worked for these ten. I didn't stop there, because my five test questions are
+unusually specific: each one names a course, hall or dining hall. I probed a
+few shorter, vaguer campus questions:
+
+| Question | Covered? | Best distance |
+|---|---|---|
+| Which dorm is quietest for studying? | Yes (noise posts) | 0.4797 |
+| How do I get a parking permit? | Yes | 0.5339 |
+| Is there a campus gym? | No | 0.5748 |
+| What's the best pizza place in town? | No | 0.5802 |
+| Is there a swimming pool on campus? | No | 0.6254 |
+| Where can I print documents? | Partly (printing quota) | 0.6802 |
+| Can I bring a car? | Yes (parking permits) | 0.6998 |
+
+Real campus questions reach 0.70, and uncovered campus-flavoured questions
+start at 0.57. The two groups overlap, so no cutoff separates them cleanly.
+I set 0.7: it lets real campus questions through, and it still sits 0.12
+below the closest truly out-of-corpus question (0.82). What I get wrong at
+0.7: questions like the pizza one (0.58) pass the gate and reach the model.
+For those I'm relying on the second layer. I checked, and the model said "I
+don't have enough information" for the pizza question. "Can I bring a car?"
+at 0.6998 only just passes, so a slightly vaguer wording would be refused.
+
+**Grounding change:** before tightening it, the model's refusal to "Where
+can I print documents?" still listed five source files. I added two rules to
+`GROUNDING_INSTRUCTION` in `generate.py`: name only the files that actually
+contain the facts used (not every file provided), and name no source when
+declining. After the change the same question returns a plain "I do not have
+enough information" with no citation.
 
 ## How I Used AI
 

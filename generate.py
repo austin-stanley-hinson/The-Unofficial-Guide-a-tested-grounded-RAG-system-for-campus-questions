@@ -279,6 +279,8 @@ Rules:
 - Use only the information in the documents below. Do not use anything you know from elsewhere.
 - If the documents don't cover the question, say you don't have enough information. Do not guess.
 - Name the document your answer came from, using the filename given in each excerpt.
+- Name only the files that actually contain the facts you used. Several excerpts are about similar things (the same course, the same residence hall, other halls' laundry) — do not list a file just because it was provided.
+- If you say you don't have enough information, name no source.
 - Be brief. Two or three sentences is usually enough."""
 
 
