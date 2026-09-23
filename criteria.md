@@ -22,9 +22,16 @@ pipeline earns credit; *"80% seemed reasonable"* does not.
 For at least 4 of my 5 test questions, the retrieved chunks include one that
 contains the answer.
 
+**How to check:** for each question in `questions.py`, run
+`python app.py retrieve "<question>"` and see whether the file named in the
+comment above that question appears among the five results.
+
 **Why this target:**
-<!-- e.g. "One of my questions is about a topic only two documents mention, so
-     I expect that one to be hard." -->
+Three of my five questions point at a file that has near-identical siblings.
+Fenwick Court's laundry post is one of seven laundry posts that share almost
+every word except the hall name. With 88 chunks and top-k 5, one of those
+siblings could push the right file down to sixth. I'd call it a failure if
+more than one question missed, but not if exactly one did.
 
 ---
 
@@ -32,9 +39,17 @@ contains the answer.
 
 Every answer the system produces names at least one source document.
 
+**How to check:** every answer printed by `python app.py ask` (or written to
+the run log by `run_eval.py`) contains at least one `.txt` filename from
+`corpora/campus_life/documents/`.
+
 **Why this target:**
-<!-- Why all five and not four? What about your setup makes that achievable —
-     or what would have to go wrong for it not to be? -->
+All five and not four because the pipeline makes it easy. Every excerpt in the
+prompt is labelled `[from <filename>]`, and `GROUNDING_INSTRUCTION` in
+`generate.py` tells the model to name the file. Each of my five questions is
+answered by a single short post, so there's always one obvious file to cite.
+The only way to miss is the model ignoring an explicit instruction, which is
+exactly the kind of failure I want to see.
 
 ---
 
@@ -49,49 +64,56 @@ in at least 4 of 5 tries.
      what happened into your run log. Swap them for your own if you'd rather —
      just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
 
+**How to check:** `python run_eval.py` puts the five `OUT_OF_SCOPE` questions
+through the gate and records, for each one, whether it was refused. Count the
+refusals.
+
 **Why this target:**
-<!-- What did your distances look like when you set the cutoff in Milestone 4?
-     Was there a clean gap, or did the two groups overlap? -->
+Four of the five (Mongolia, diesel engines, the World Cup, Rust) have nothing
+near them in a corpus about one campus. The ibuprofen question is the risky
+one. `health_center.txt` talks about walk-in hours and urgent visits, so that
+question could land close enough to pass the gate. I'd rather allow for that
+one near-miss than set the cutoff so tight that it refuses real campus
+questions.
 
 ---
 
-## 4. Something about your chunks
+## 4. Every chunk keeps its title and is never a fragment
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know if your chunks were the right size? Name something
-     countable or observable.
-
-     Examples of the right shape — don't copy these, they should come from
-     what you actually saw in Milestone 3:
-       - "At least 4 of 5 sampled chunks read as a complete thought, with no
-          sentence cut in half at either end."
-       - "No chunk is shorter than 200 characters, since anything below that
-          in my corpus turned out to be a heading with no content under it." -->
-
-
+Every chunk printed by `python app.py chunks` begins with the first line (the
+title) of the document it came from, and `python app.py index` reports no
+chunk shorter than 150 characters.
 
 **Why this target:**
-
-
+Every `campus_life` document is a short post (178–549 characters after
+cleaning): a title line like "PHYS 130 Mechanics — assessment" followed by 2–5
+short paragraphs. The title is often the only place the subject gets named. A
+line like "The lab practical is worth 20% and almost nobody prepares for it"
+doesn't say which course it's about once it's cut away from that title. The
+shortest real post is 178 characters, so anything under 150 can only be a
+fragment left over from a bad split. It's "every chunk" and not "most" because
+the model can't recover a subject that isn't in the chunk.
 
 ---
 
-## 5. Your choice
+## 5. The cited source is the right one, not a sibling
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. It could be about
-     speed, about refusals, about a particular kind of question your corpus
-     handles badly, about source attribution being correct rather than merely
-     present — anything, as long as it names a number or an observable
-     outcome. -->
-
-
+For at least 4 of my 5 test questions, the answer names the file listed in the
+comment above that question in `questions.py`. Naming only a sibling file from
+the same course or hall does not count (for example, citing
+`course_cs_210_workload.txt` when the answer is in `course_cs_210_exams.txt`).
 
 **Why this target:**
-
-
+The corpus is mostly near-identical templates: 9 courses × 3 files
+(overview / exams / workload) and 7 residence halls × 3 files (overview /
+laundry / noise). That's 48 of the 88 documents, and siblings share most of
+their vocabulary, so their embeddings will sit close together. Criterion 2
+only checks that a source is present. This one checks that it's correct,
+which is where I expect this corpus to go wrong. 4 of 5 rather than 5 of 5
+because my first two questions hit the CS 210 exams and workload files one
+after the other. Both files will come back for both questions, and I expect
+the model might cite the wrong one of the pair once. Two wrong citations
+would mean the pipeline can't tell siblings apart.
 
 ---
 

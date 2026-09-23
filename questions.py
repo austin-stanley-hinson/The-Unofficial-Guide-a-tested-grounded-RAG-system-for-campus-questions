@@ -23,11 +23,16 @@ names a target of "4 of 5", and four of three is not a thing.
 
 QUESTIONS = [
     # {"question": "...", "expects": "..."},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
+    # course_cs_210_exams.txt (sibling trap: course_cs_210_workload.txt)
+    {"question": "Is the CS 210 final exam curved?", "expects": "not curved"},
+    # course_cs_210_workload.txt (sibling trap: course_cs_210_exams.txt)
+    {"question": "How many hours a week does CS 210 take outside class?", "expects": "8 to 10"},
+    # housing_fenwick_court_laundry.txt (sibling trap: other halls' laundry files)
+    {"question": "When is the best time to do laundry in Fenwick Court?", "expects": "Tuesday or Wednesday morning"},
+    # dining_kestrel_commons.txt
+    {"question": "How long is the lunch wait at Kestrel Commons?", "expects": "20 to 25 minutes"},
+    # admin_dining_dollars.txt
+    {"question": "Do dining dollars roll over from spring to fall?", "expects": "disappears"},
 ]
 
 # Questions from a different world entirely. Your gate should refuse all five.
