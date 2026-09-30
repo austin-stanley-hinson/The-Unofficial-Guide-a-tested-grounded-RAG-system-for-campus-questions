@@ -218,6 +218,25 @@ added two rules to `GROUNDING_INSTRUCTION`: cite only files whose facts you
 used, and cite nothing when declining. Then I re-ran the same question and
 the citation list was gone.
 
+**Unit 2.** Claude Code ran the evals and helped read the results. Three
+moments mattered:
+
+- **The first before-run was garbage, and it looked like a finding.** Every
+  question came back refused at 0.86–0.95. Instead of writing that up as
+  "the gate refuses everything", Claude compared the stored vectors with
+  fresh embeddings (cosine ≈ 0). The cause was `tools/smoke_test.py` having
+  overwritten the index with fake embeddings. Recording that run would have
+  meant diagnosing a bug my system doesn't have.
+- **Finding the pattern.** With everything MET, I had Claude run the same
+  question shapes over every course, hall and dining hall. The 7 misses all
+  being course questions, plus the 0.27 distance between "CS 210" and
+  "CS 340", is what turned seven failures into one diagnosis.
+- **Arguing against my own result.** Criterion 5's verdict was checked by
+  arguing the opposite (the extra sibling citation), and the hybrid change
+  was checked against unit 1's borderline questions, not just my five.
+  That second check is what found the regression. My criteria alone would
+  have reported the change as harmless.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -744,9 +763,47 @@ What's Still Broken.
 
      Milestone 5. -->
 
+No criterion is missed after the fix, and none was missed before. So this
+section covers what the criteria didn't catch, and that list is real.
+
+1. **Hybrid refuses short, covered questions.** "Where can I print
+   documents?" and "Can I bring a car?" went from answered to refused.
+   *What I'd do:* make fusion unable to drop the semantic #1. Two parts:
+   (a) have the gate judge the best cosine distance over *all* candidates,
+   not just the fused top 5; (b) always keep the semantic #1 in the
+   results. Secondarily, add stemming and a stopword list to `_tokens`, so
+   "print" meets "printing" and "can"/"I"/"a" stop counting as matches.
+   *Why I stopped:* the unit allows one change. Stacking a patch on the
+   hybrid change would leave the after run measuring two things at once.
+2. **Two workload siblings still lose (CS 340 at rank 4, HIST 118 not in
+   the top 5).** HIST 118's post says "120 pages a week" and never "hours",
+   so neither meaning nor keywords links it to the question. *What I'd do:*
+   I already have the metadata filter from the unit 1 stretch. If the
+   question contains a course code that matches a filename, filter to that
+   course's three files before ranking. This is a rule rather than
+   learning, but course codes in this corpus are exact and closed-ended.
+   *Why I stopped:* same one-change rule, and it's a second retrieval
+   change.
+3. **Criterion 5 can't score an extra correct sibling.** Both runs cite
+   `course_cs_210.txt` next to the expected file, and after hybrid that
+   happens on the workload question too. It isn't wrong, since the overview
+   repeats the figure, but my criterion has no rule for it. That's a
+   criterion fix, not a system fix (see below).
+4. **`tools/smoke_test.py` silently overwrites the real index** with fake
+   embeddings, which is what broke my first before-run. It shipped with the
+   starter, and the fix (point it at a temporary `CHROMA_DIR`) isn't part
+   of my system. So I noted it here and re-indexed instead of editing it.
+
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
-
-     Milestone 5. -->
+- **Criterion 1** would be "the answer's file is at rank 1 for at least
+  30 of 32 sibling-probe questions" instead of "in the top 5 for 4 of my 5".
+  Five hand-picked questions about entities with distinctive names let the
+  course-code weakness hide completely. It only showed up when I asked the
+  same question about every course.
+- **Criterion 3 was one-sided.** It only tested that the gate refuses what it
+  should. I'd add the reverse: "the gate lets through at least 6 of 7
+  borderline campus questions the corpus does answer". That's exactly the
+  regression hybrid caused, and none of my five criteria could see it.
+- **Criterion 5** would say how to count an extra citation: the expected
+  file must be named, and any other file named must also contain the fact.
