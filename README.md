@@ -753,6 +753,28 @@ I left it this way for the measured run, because the unit allows one change
 and a patch on top would make before/after impossible to read. The fix is in
 What's Still Broken.
 
+## Unit 2 Stretch: A Second Improvement
+
+*This is the Unit 2 stretch. It's separate from the three Unit 1 stretch
+features (metadata filtering, conversational memory, second embedding model)
+listed under Unit 1 above.*
+
+**Declared before building.** The change: hybrid fusion will always keep the
+semantic #1 chunk in the results. If reciprocal rank fusion would drop it,
+it replaces the lowest-ranked fused chunk. Because that chunk has the
+smallest cosine distance of all candidates, the gate then judges the same
+best distance it did in unit 1, and the model always sees the closest chunk.
+
+**The failure it targets:** the hybrid regression above. "Where can I print
+documents?" and "Can I bring a car?" were refused because a zero-signal BM25
+list pushed the semantic #1 out of the top 5.
+
+**How I'll measure it:** a third run log (`run_eval.py --label stretch`) in
+the same five-criteria table, the gate on unit 1's 7 borderline questions
+plus the 5 out-of-scope ones (`tools/gate_probe.py`), and the sibling probe
+again, to check the 29/32 from hybrid doesn't slip. Only this one thing
+changes. No stemming, no weight tuning.
+
 ## What's Still Broken
 
 <!-- For each criterion still missed after your fix: what you'd do about it,
