@@ -434,15 +434,86 @@ and the bigger model is worse at exactly that. It also needs PyTorch.
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Every chunk keeps its title, none under 150 chars | 88 of 88 | 88/88 | 88/88 | 88/88 | MET |
+| 5. Cited source is the right file, not a sibling | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+Raw file: `results/run_2026-09-29_2220_before.md`, written by
+`run_eval.py::main` (questions) and `run_eval.py::check_out_of_scope`
+(criterion 3). There's no `scorer.py`, so I scored every answer by reading
+it against the file named in `questions.py`.
+
+Criteria 1, 3 and 4 don't depend on the model, so the same number goes in all
+three columns. Retrieval, the gate and the chunker are deterministic. The
+generated answers did vary between runs, which shows the cache really was off:
+the Kestrel answer cited `dining_kestrel_commons_followup.txt` in runs 1 and 3
+but not run 2, and the dining-dollars answer dropped "whatever is left in May
+disappears" in run 3.
+
+**Something I caught before this run counted.** My first attempt came back
+with every in-corpus question at 0.86–0.95 and all five refused by the gate.
+Last unit those questions scored 0.18–0.36. I compared the stored vectors
+with fresh embeddings of the same chunk text and got a cosine similarity of
+about 0. `tools/smoke_test.py` sets `AI201_FAKE_EMBEDDINGS=1` and rebuilds
+`campus_life__default`, and I'd run it after my last unit 1 commit, so it had
+overwritten the real index with fake vectors. I rebuilt with
+`python app.py index` (no code changed), confirmed the CS 210 and Fenwick
+distances matched unit 1 exactly (0.3596, 0.2951), deleted that invalid run
+file and re-ran.
+
+### Real output (run 1)
+
+**Criterion 1.** `store.py::search`. The expected file is in the top 5 for
+all five questions (from the run log's "Sources retrieved" lines):
+
+```
+Is the CS 210 final exam curved?            -> course_cs_210.txt, course_cs_210_exams.txt, course_cs_340_exams.txt, course_engl_205_exams.txt, course_hist_118.txt
+How many hours a week does CS 210 take...?  -> course_cs_210_workload.txt, course_cs_340.txt, course_econ_101_workload.txt, course_stat_150.txt, course_stat_150_workload.txt
+When is the best time to do laundry in FC?  -> housing_aldridge_hall_laundry.txt, housing_fenwick_court_laundry.txt, housing_old_brewhouse_laundry.txt, housing_tamsin_court_laundry.txt, transit_walking.txt
+How long is the lunch wait at Kestrel...?   -> dining_halden_hall_followup.txt, dining_kestrel_commons.txt, dining_kestrel_commons_followup.txt, dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_cafe_followup.txt
+Do dining dollars roll over...?             -> admin_dining_dollars.txt, admin_meal_plan_changes.txt, dining_halden_hall.txt, dining_north_kitchen.txt, money_jobs.txt
+```
+
+**Criteria 2 and 5.** `generate.py::answer_from_chunks`. Each answer names
+a file, and it's the expected one:
+
+```
+No, the CS 210 final exam is not curved.
+Sources: `course_cs_210_exams.txt`, `course_cs_210.txt`
+
+CS 210 takes 8 to 10 hours a week outside class.
+Source: course_cs_210_workload.txt
+
+The best time to do laundry in Fenwick Court is Tuesday or Wednesday morning.
+Source: housing_fenwick_court_laundry.txt
+
+The wait time at Kestrel Commons is 20 to 25 minutes between 12:15 and 1:00, and under 5 minutes before 11:45.
+Source: dining_kestrel_commons.txt (and dining_kestrel_commons_followup.txt)
+
+No, dining dollars do not roll over from the spring semester to the following autumn; whatever is left in May disappears.
+Source: admin_dining_dollars.txt
+```
+
+**Criterion 3.** `run_eval.py::check_out_of_scope`, cutoff 0.7:
+
+```
+  refused  (best distance 0.825)  What is the capital of Mongolia?
+  refused  (best distance 0.934)  How do I change the oil in a diesel engine?
+  refused  (best distance 0.886)  Who won the 1994 World Cup?
+  refused  (best distance 0.844)  What is the recommended dosage of ibuprofen for a headache?
+  refused  (best distance 0.896)  How do I write a for loop in Rust?
+  -> gate refused 5 of 5
+```
+
+**Criterion 4.** `chunker.py::split_documents`, from `python app.py index`
+plus a check that every chunk starts with its document's first line:
+
+```
+  chunked  88 chunks, 317 characters on average (shortest 178, longest 549), produced by chunker.py::split_documents
+88 chunks; missing title: 0 [] ; shortest: 178
+```
 
 ## Verdicts
 
