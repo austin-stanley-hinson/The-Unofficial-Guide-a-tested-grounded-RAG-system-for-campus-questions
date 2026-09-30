@@ -567,6 +567,70 @@ missed, so there's nothing to revise for the right reason.
 
      Milestone 3. -->
 
+**I missed nothing.** Honestly, that says more about my targets than about
+the system. All five test questions name an entity the embedder happens to
+tell apart, and "4 of 5 in the top 5" left room for a lot to go wrong
+unnoticed. So I tested the same question shapes more widely to find where
+the system actually breaks.
+
+**Widening the test.** `tools/sibling_probe.py` asks my templates ("Is the
+X final exam curved?", "How many hours a week does X take outside class?",
+"When is the best time to do laundry in X?", "How long is the lunch wait at
+X?") for every course, hall and dining hall: 32 questions, retrieval only,
+no model calls. It counts a hit when the file that holds the answer comes
+back at rank 1. Output: `results/sibling_probe_semantic.json`.
+
+```
+family       n   rank 1  in top 5
+dining       7     7/7       7/7
+exams        9     6/9       9/9
+laundry      7     7/7       7/7
+workload     9     5/9       8/9
+ALL         32    25/32     31/32
+
+Not at rank 1:
+  rank 2  Is the CS 340 final exam curved?  -> top: course_cs_210_exams.txt (0.39)
+  rank 4  How many hours a week does CS 340 take outside class?  -> top: course_cs_210_workload.txt (0.2996)
+  rank 2  How many hours a week does ENGL 205 take outside class?  -> top: course_stat_150_workload.txt (0.3934)
+  rank -  How many hours a week does HIST 118 take outside class?  -> top: course_stat_150_workload.txt (0.3839)
+  rank 5  Is the MATH 220 final exam curved?  -> top: course_engl_205_exams.txt (0.4665)
+  rank 3  How many hours a week does MATH 220 take outside class?  -> top: course_stat_150_workload.txt (0.3598)
+  rank 2  Is the STAT 150 final exam curved?  -> top: course_engl_205_exams.txt (0.4287)
+```
+
+**The pattern: all 7 misses are course questions, and each one loses to a
+different course's post of the same type.** Halls and dining halls are 14/14.
+One problem, not seven.
+
+**Stage: embedding, showing up at retrieval.** The mechanism:
+
+- The sibling posts are one template with the course code and one figure
+  swapped. `course_stat_150_workload.txt` and `course_hist_118_workload.txt`
+  match word for word except "STAT 150 Applied Statistics" / "HIST 118 Modern
+  World History" and "5 to 6 hours a week" / "about 120 pages a week".
+- In a question, the course code is the only word that picks the right
+  sibling, and MiniLM barely encodes it. Measured with `store.py::embed`:
+  "CS 210" vs "CS 340" is 0.27 apart, while two hall names ("Fenwick Court"
+  vs "Tamsin Court") are 0.58 apart. The question "How many hours a week does
+  CS 340 take outside class?" sits 0.26 from the phrase "hours a week outside
+  class" and 0.55 from "CS 340". The code is a small part of what the vector
+  represents.
+- So ranking is decided by which sibling shares the question's *template
+  words*. STAT 150's post contains the literal "hours a week outside class",
+  so it wins three workload questions it has nothing to do with. HIST 118's
+  post says "pages a week", so it drops out of the top 5 entirely.
+- Hall and dining names are ordinary words ("Fenwick", "Kestrel") that the
+  embedder does encode, which is why those 14 all land at rank 1.
+
+That's also why my own two CS 210 questions passed: CS 210's posts happen to
+share the most wording with my question templates. The CS 210 workload
+answer beat STAT 150 by just 0.056 (0.3003 vs 0.3563).
+
+**What I'd tighten.** Criterion 1: from "in the top 5 for 4 of 5 of my
+questions" to "at rank 1 for at least 30 of the 32 sibling-probe questions".
+Today that's a MISS at 25/32. Criterion 5 would follow: a model reading a
+top 5 where the wrong course is #1 is set up to cite it.
+
 ## The Improvement
 
 **What I changed:**
