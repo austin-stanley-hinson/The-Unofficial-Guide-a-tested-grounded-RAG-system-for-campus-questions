@@ -1,0 +1,338 @@
+[
+  {
+    "question": "Which dorm is quietest for studying?",
+    "covered": true,
+    "best_distance": 0.4797,
+    "passed": true,
+    "top5": [
+      [
+        "study_library_hours.txt",
+        0.5252
+      ],
+      [
+        "housing_innisfree_hall_noise.txt",
+        0.484
+      ],
+      [
+        "housing_innisfree_hall.txt",
+        0.5944
+      ],
+      [
+        "dining_north_kitchen.txt",
+        0.7484
+      ],
+      [
+        "housing_old_brewhouse_noise.txt",
+        0.4797
+      ]
+    ]
+  },
+  {
+    "question": "How do I get a parking permit?",
+    "covered": true,
+    "best_distance": 0.5339,
+    "passed": true,
+    "top5": [
+      [
+        "admin_parking_permits.txt",
+        0.5339
+      ],
+      [
+        "advising_registration.txt",
+        0.7495
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.8975
+      ],
+      [
+        "admin_housing_lottery.txt",
+        0.8975
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.9067
+      ]
+    ]
+  },
+  {
+    "question": "Is there a campus gym?",
+    "covered": false,
+    "best_distance": 0.5748,
+    "passed": true,
+    "top5": [
+      [
+        "transit_shuttle.txt",
+        0.6343
+      ],
+      [
+        "dining_the_ridgeway_cafe.txt",
+        0.6459
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.6939
+      ],
+      [
+        "money_jobs.txt",
+        0.719
+      ],
+      [
+        "housing_aldridge_hall.txt",
+        0.5748
+      ]
+    ]
+  },
+  {
+    "question": "What's the best pizza place in town?",
+    "covered": false,
+    "best_distance": 0.5802,
+    "passed": true,
+    "top5": [
+      [
+        "dining_the_ridgeway_cafe.txt",
+        0.6712
+      ],
+      [
+        "housing_innisfree_hall.txt",
+        0.7886
+      ],
+      [
+        "housing_tamsin_court.txt",
+        0.6923
+      ],
+      [
+        "housing_fenwick_court.txt",
+        0.7352
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.5802
+      ]
+    ]
+  },
+  {
+    "question": "Is there a swimming pool on campus?",
+    "covered": false,
+    "best_distance": 0.6254,
+    "passed": true,
+    "top5": [
+      [
+        "transit_shuttle.txt",
+        0.715
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.7423
+      ],
+      [
+        "housing_innisfree_hall.txt",
+        0.6928
+      ],
+      [
+        "admin_wifi_and_accounts.txt",
+        0.7452
+      ],
+      [
+        "housing_tamsin_court.txt",
+        0.6254
+      ]
+    ]
+  },
+  {
+    "question": "Where can I print documents?",
+    "covered": true,
+    "best_distance": 0.6802,
+    "passed": true,
+    "top5": [
+      [
+        "money_textbooks.txt",
+        0.7444
+      ],
+      [
+        "admin_library_holds.txt",
+        0.8342
+      ],
+      [
+        "study_library_hours.txt",
+        0.9138
+      ],
+      [
+        "course_cs_340.txt",
+        0.8475
+      ],
+      [
+        "admin_printing_quota.txt",
+        0.6802
+      ]
+    ]
+  },
+  {
+    "question": "Can I bring a car?",
+    "covered": true,
+    "best_distance": 0.6998,
+    "passed": true,
+    "top5": [
+      [
+        "dining_verrill_street_grill.txt",
+        0.8286
+      ],
+      [
+        "housing_fenwick_court.txt",
+        0.8571
+      ],
+      [
+        "admin_library_holds.txt",
+        0.9071
+      ],
+      [
+        "dining_kestrel_commons.txt",
+        0.8484
+      ],
+      [
+        "admin_parking_permits.txt",
+        0.6998
+      ]
+    ]
+  },
+  {
+    "question": "What is the capital of Mongolia?",
+    "covered": false,
+    "best_distance": 0.8246,
+    "passed": false,
+    "top5": [
+      [
+        "course_hist_118.txt",
+        0.8693
+      ],
+      [
+        "housing_innisfree_hall.txt",
+        0.989
+      ],
+      [
+        "winter_gear.txt",
+        0.974
+      ],
+      [
+        "housing_innisfree_hall_noise.txt",
+        0.9964
+      ],
+      [
+        "course_hist_118_exams.txt",
+        0.8246
+      ]
+    ]
+  },
+  {
+    "question": "How do I change the oil in a diesel engine?",
+    "covered": false,
+    "best_distance": 0.934,
+    "passed": false,
+    "top5": [
+      [
+        "admin_meal_plan_changes.txt",
+        0.934
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.9909
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.9545
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.9958
+      ],
+      [
+        "housing_fenwick_court_laundry.txt",
+        0.9746
+      ]
+    ]
+  },
+  {
+    "question": "Who won the 1994 World Cup?",
+    "covered": false,
+    "best_distance": 0.8859,
+    "passed": false,
+    "top5": [
+      [
+        "course_hist_118_exams.txt",
+        0.8859
+      ],
+      [
+        "course_hist_118.txt",
+        0.9374
+      ],
+      [
+        "admin_housing_lottery.txt",
+        0.9622
+      ],
+      [
+        "admin_study_abroad.txt",
+        0.9475
+      ],
+      [
+        "course_hist_118_workload.txt",
+        0.9901
+      ]
+    ]
+  },
+  {
+    "question": "What is the recommended dosage of ibuprofen for a headache?",
+    "covered": false,
+    "best_distance": 0.8442,
+    "passed": false,
+    "top5": [
+      [
+        "course_hist_118.txt",
+        0.8602
+      ],
+      [
+        "course_engl_205.txt",
+        0.8703
+      ],
+      [
+        "course_phys_130.txt",
+        0.9039
+      ],
+      [
+        "dining_the_ridgeway_cafe.txt",
+        0.8708
+      ],
+      [
+        "money_textbooks.txt",
+        0.8442
+      ]
+    ]
+  },
+  {
+    "question": "How do I write a for loop in Rust?",
+    "covered": false,
+    "best_distance": 0.896,
+    "passed": false,
+    "top5": [
+      [
+        "course_engl_205.txt",
+        0.9002
+      ],
+      [
+        "course_cs_340.txt",
+        0.9394
+      ],
+      [
+        "housing_calder_annexe_laundry.txt",
+        0.9178
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.9466
+      ],
+      [
+        "course_hist_118_exams.txt",
+        0.896
+      ]
+    ]
+  }
+]

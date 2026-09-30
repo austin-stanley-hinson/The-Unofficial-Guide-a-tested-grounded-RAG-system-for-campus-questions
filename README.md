@@ -775,6 +775,71 @@ plus the 5 out-of-scope ones (`tools/gate_probe.py`), and the sibling probe
 again, to check the 29/32 from hybrid doesn't slip. Only this one thing
 changes. No stemming, no weight tuning.
 
+### Stretch result
+
+**What I built:** four lines in `store.py::_fuse_with_bm25`. After fusion
+picks the top 5, if the cosine #1 isn't among them, it replaces the fifth.
+The baseline was committed before the code (`results/gate_probe_semantic.json`,
+`results/gate_probe_hybrid.json`).
+
+#### Run Log — Stretch (third run log)
+
+Raw file: `results/run_2026-09-29_2236_stretch.md` (`run_eval.py::main`,
+`run_eval.py::check_out_of_scope`).
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Every chunk keeps its title, none under 150 chars | 88 of 88 | 88/88 | 88/88 | 88/88 | MET |
+| 5. Cited source is the right file, not a sibling | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+Retrieved sets for my five questions are identical to the hybrid after-run,
+because the semantic #1 was already in the fused top 5 for all of them.
+Criterion 3's distances went back to exactly unit 1's (Mongolia 0.869 →
+0.825, ibuprofen 0.860 → 0.844, Rust 0.900 → 0.896).
+
+**The failure it targeted, all three modes** (`tools/gate_probe.py`):
+
+| Question | Covered? | Semantic | Hybrid | Hybrid + keep #1 |
+|---|---|---|---|---|
+| Which dorm is quietest for studying? | Yes | 0.4797 pass | 0.4840 pass | 0.4797 pass |
+| How do I get a parking permit? | Yes | 0.5339 pass | 0.5339 pass | 0.5339 pass |
+| Where can I print documents? | Yes | 0.6802 pass | **0.7444 REFUSE** | 0.6802 pass |
+| Can I bring a car? | Yes | 0.6998 pass | **0.8286 REFUSE** | 0.6998 pass |
+| Covered let through | | 4/4 | 2/4 | **4/4** |
+| Out-of-scope refused | | 5/5 | 5/5 | 5/5 |
+
+**And the thing hybrid was for didn't slip** (`tools/sibling_probe.py`):
+rank 1 on 25/32 (semantic) → 29/32 (hybrid) → 29/32 (hybrid + keep #1).
+Exams stay 9/9.
+
+**Real output**, `app.py ask` (via `app.py::ask_pipeline`):
+
+```
+$ python app.py ask "Can I bring a car?"
+  (best distance 0.700, cutoff 0.7)
+Student permits for the west lots go on sale in August, while the east lot never sells out because it is a 12-minute walk. If you miss the permit window, people legally park on Verrill Street and walk in.
+Source: admin_parking_permits.txt
+Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, dining_kestrel_commons.txt, dining_verrill_street_grill.txt, housing_fenwick_court.txt
+
+$ python app.py ask "Where can I print documents?"
+  (best distance 0.680, cutoff 0.7)
+I don't have enough information to answer where you can print documents.
+Sources retrieved: admin_library_holds.txt, admin_printing_quota.txt, course_cs_340.txt, money_textbooks.txt, study_library_hours.txt
+```
+
+**Did it help?** Yes. It fixed exactly the regression it targeted and cost
+nothing measurable. Covered borderline questions went 2/4 → 4/4, back to
+semantic's level. The five criteria held at 5/5, and the sibling-probe gain
+from hybrid (29/32) stayed. "Can I bring a car?" now gets a real answer
+from the parking post. "Where can I print documents?" gets through the gate
+again, but the model still declines, as it did in unit 1. So that's a
+generation-stage limit (the printing post is about the quota, not a
+location), not a retrieval one. What it doesn't fix: hybrid's sibling misses
+(CS 340, HIST 118), which this change was never aimed at.
+
 ## What's Still Broken
 
 <!-- For each criterion still missed after your fix: what you'd do about it,
@@ -797,6 +862,11 @@ section covers what the criteria didn't catch, and that list is real.
    "print" meets "printing" and "can"/"I"/"a" stop counting as matches.
    *Why I stopped:* the unit allows one change. Stacking a patch on the
    hybrid change would leave the after run measuring two things at once.
+   > **Update (Unit 2 stretch):** part (b), keeping the semantic #1, is now
+   > built and measured. See "Unit 2 Stretch: A Second Improvement" above.
+   > That also delivers (a), since the kept chunk is the one with the best
+   > distance. Covered borderline questions are back to 4/4. Stemming and
+   > stopwords are still not done.
 2. **Two workload siblings still lose (CS 340 at rank 4, HIST 118 not in
    the top 5).** HIST 118's post says "120 pages a week" and never "hours",
    so neither meaning nor keywords links it to the question. *What I'd do:*

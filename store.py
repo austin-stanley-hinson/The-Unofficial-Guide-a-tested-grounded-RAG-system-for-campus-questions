@@ -296,6 +296,12 @@ def _fuse_with_bm25(question: str, raw: dict, top_k: int) -> dict:
         fused[i] += 1 / (config.RRF_K + rank)
 
     keep = sorted(range(len(docs)), key=lambda i: -fused[i])[:top_k]
+    # Unit 2 stretch: never let fusion drop the closest cosine chunk. When a
+    # question shares no keywords with its answer ("Can I bring a car?" vs the
+    # parking post), BM25 is noise and would otherwise push it out — and then
+    # the gate judges a worse best distance than the corpus really has.
+    if 0 not in keep:
+        keep[-1] = 0
     return {
         field: [[raw[field][0][i] for i in keep]]
         for field in ("documents", "metadatas", "distances")

@@ -1,0 +1,969 @@
+[
+  {
+    "family": "exams",
+    "question": "Is the BIOL 160 final exam curved?",
+    "accepted": [
+      "course_biol_160_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_biol_160_exams.txt",
+        0.3971
+      ],
+      [
+        "course_biol_160.txt",
+        0.494
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.497
+      ],
+      [
+        "course_phys_130_exams.txt",
+        0.5197
+      ],
+      [
+        "course_cs_210.txt",
+        0.5413
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does BIOL 160 take outside class?",
+    "accepted": [
+      "course_biol_160_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_biol_160_workload.txt",
+        0.3105
+      ],
+      [
+        "course_biol_160.txt",
+        0.3173
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3976
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4347
+      ],
+      [
+        "course_biol_160_exams.txt",
+        0.5111
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "exams",
+    "question": "Is the CS 210 final exam curved?",
+    "accepted": [
+      "course_cs_210_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_cs_210_exams.txt",
+        0.3596
+      ],
+      [
+        "course_cs_210.txt",
+        0.458
+      ],
+      [
+        "course_cs_340_exams.txt",
+        0.4953
+      ],
+      [
+        "course_cs_340.txt",
+        0.5915
+      ],
+      [
+        "course_hist_118_exams.txt",
+        0.5658
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does CS 210 take outside class?",
+    "accepted": [
+      "course_cs_210_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_cs_210_workload.txt",
+        0.3003
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3563
+      ],
+      [
+        "course_stat_150.txt",
+        0.4881
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4458
+      ],
+      [
+        "course_cs_210.txt",
+        0.5073
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "exams",
+    "question": "Is the CS 340 final exam curved?",
+    "accepted": [
+      "course_cs_340_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_cs_340_exams.txt",
+        0.4326
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.39
+      ],
+      [
+        "course_cs_340.txt",
+        0.5423
+      ],
+      [
+        "course_cs_210.txt",
+        0.4557
+      ],
+      [
+        "course_phys_130_exams.txt",
+        0.5816
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does CS 340 take outside class?",
+    "accepted": [
+      "course_cs_340_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_cs_210_workload.txt",
+        0.2996
+      ],
+      [
+        "course_cs_340_exams.txt",
+        0.4169
+      ],
+      [
+        "course_cs_340.txt",
+        0.3666
+      ],
+      [
+        "course_cs_340_workload.txt",
+        0.3786
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3414
+      ]
+    ],
+    "rank": 4
+  },
+  {
+    "family": "exams",
+    "question": "Is the ECON 101 final exam curved?",
+    "accepted": [
+      "course_econ_101_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_econ_101_exams.txt",
+        0.3806
+      ],
+      [
+        "course_econ_101.txt",
+        0.4255
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.4544
+      ],
+      [
+        "course_cs_210.txt",
+        0.5269
+      ],
+      [
+        "course_phys_130_exams.txt",
+        0.5379
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does ECON 101 take outside class?",
+    "accepted": [
+      "course_econ_101_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_econ_101_workload.txt",
+        0.3095
+      ],
+      [
+        "course_econ_101.txt",
+        0.4492
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.4342
+      ],
+      [
+        "course_econ_101_exams.txt",
+        0.5415
+      ],
+      [
+        "course_cs_210_workload.txt",
+        0.5184
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "exams",
+    "question": "Is the ENGL 205 final exam curved?",
+    "accepted": [
+      "course_engl_205_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_engl_205_exams.txt",
+        0.3572
+      ],
+      [
+        "course_engl_205.txt",
+        0.4751
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.488
+      ],
+      [
+        "course_cs_210.txt",
+        0.5341
+      ],
+      [
+        "course_phys_130_exams.txt",
+        0.5888
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does ENGL 205 take outside class?",
+    "accepted": [
+      "course_engl_205_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_engl_205.txt",
+        0.4223
+      ],
+      [
+        "course_engl_205_workload.txt",
+        0.3997
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3934
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4392
+      ],
+      [
+        "course_stat_150.txt",
+        0.5202
+      ]
+    ],
+    "rank": 2
+  },
+  {
+    "family": "exams",
+    "question": "Is the HIST 118 final exam curved?",
+    "accepted": [
+      "course_hist_118_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_hist_118_exams.txt",
+        0.3946
+      ],
+      [
+        "course_hist_118.txt",
+        0.4168
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.4935
+      ],
+      [
+        "course_cs_210.txt",
+        0.5343
+      ],
+      [
+        "course_phys_130_exams.txt",
+        0.5711
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does HIST 118 take outside class?",
+    "accepted": [
+      "course_hist_118_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_stat_150_workload.txt",
+        0.3839
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4657
+      ],
+      [
+        "course_hist_118.txt",
+        0.4934
+      ],
+      [
+        "course_stat_150.txt",
+        0.5163
+      ],
+      [
+        "course_cs_210_workload.txt",
+        0.4883
+      ]
+    ],
+    "rank": null
+  },
+  {
+    "family": "exams",
+    "question": "Is the MATH 220 final exam curved?",
+    "accepted": [
+      "course_math_220_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_math_220_exams.txt",
+        0.5226
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.4861
+      ],
+      [
+        "course_math_220.txt",
+        0.5527
+      ],
+      [
+        "course_cs_210.txt",
+        0.5182
+      ],
+      [
+        "course_engl_205_exams.txt",
+        0.4665
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does MATH 220 take outside class?",
+    "accepted": [
+      "course_math_220_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_math_220_workload.txt",
+        0.4187
+      ],
+      [
+        "course_math_220.txt",
+        0.4186
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3598
+      ],
+      [
+        "course_stat_150.txt",
+        0.4865
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4574
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "exams",
+    "question": "Is the PHYS 130 final exam curved?",
+    "accepted": [
+      "course_phys_130_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_phys_130_exams.txt",
+        0.3689
+      ],
+      [
+        "course_phys_130.txt",
+        0.4034
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.5064
+      ],
+      [
+        "course_hist_118_exams.txt",
+        0.5331
+      ],
+      [
+        "course_cs_210.txt",
+        0.5557
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does PHYS 130 take outside class?",
+    "accepted": [
+      "course_phys_130_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_phys_130_workload.txt",
+        0.3255
+      ],
+      [
+        "course_phys_130.txt",
+        0.3297
+      ],
+      [
+        "course_stat_150_workload.txt",
+        0.3688
+      ],
+      [
+        "course_stat_150.txt",
+        0.4796
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4461
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "exams",
+    "question": "Is the STAT 150 final exam curved?",
+    "accepted": [
+      "course_stat_150_exams.txt"
+    ],
+    "top5": [
+      [
+        "course_stat_150_exams.txt",
+        0.4596
+      ],
+      [
+        "course_stat_150.txt",
+        0.5142
+      ],
+      [
+        "course_cs_210_exams.txt",
+        0.4903
+      ],
+      [
+        "course_cs_210.txt",
+        0.5326
+      ],
+      [
+        "course_engl_205_exams.txt",
+        0.4287
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "workload",
+    "question": "How many hours a week does STAT 150 take outside class?",
+    "accepted": [
+      "course_stat_150_workload.txt"
+    ],
+    "top5": [
+      [
+        "course_stat_150_workload.txt",
+        0.243
+      ],
+      [
+        "course_stat_150.txt",
+        0.352
+      ],
+      [
+        "course_econ_101_workload.txt",
+        0.4456
+      ],
+      [
+        "course_cs_210_workload.txt",
+        0.4473
+      ],
+      [
+        "course_stat_150_exams.txt",
+        0.6214
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Aldridge Hall?",
+    "accepted": [
+      "housing_aldridge_hall_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.3021
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4479
+      ],
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.5057
+      ],
+      [
+        "housing_aldridge_hall.txt",
+        0.4788
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.5132
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Calder Annexe?",
+    "accepted": [
+      "housing_calder_annexe_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_calder_annexe_laundry.txt",
+        0.2953
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.4727
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4926
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.5005
+      ],
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.5436
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Fenwick Court?",
+    "accepted": [
+      "housing_fenwick_court_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_fenwick_court_laundry.txt",
+        0.2951
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4314
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.4894
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.4913
+      ],
+      [
+        "transit_walking.txt",
+        0.484
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Innisfree Hall?",
+    "accepted": [
+      "housing_innisfree_hall_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.3377
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4416
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.456
+      ],
+      [
+        "housing_morrow_house_laundry.txt",
+        0.4894
+      ],
+      [
+        "housing_innisfree_hall.txt",
+        0.5009
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Morrow House?",
+    "accepted": [
+      "housing_morrow_house_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_morrow_house_laundry.txt",
+        0.3045
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4506
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.4732
+      ],
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.4966
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.4761
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Old Brewhouse?",
+    "accepted": [
+      "housing_old_brewhouse_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.3248
+      ],
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.4507
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.452
+      ],
+      [
+        "housing_fenwick_court_laundry.txt",
+        0.4728
+      ],
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.4951
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "laundry",
+    "question": "When is the best time to do laundry in Tamsin Court?",
+    "accepted": [
+      "housing_tamsin_court_laundry.txt"
+    ],
+    "top5": [
+      [
+        "housing_tamsin_court_laundry.txt",
+        0.2392
+      ],
+      [
+        "housing_aldridge_hall_laundry.txt",
+        0.4956
+      ],
+      [
+        "housing_fenwick_court_laundry.txt",
+        0.5049
+      ],
+      [
+        "housing_innisfree_hall_laundry.txt",
+        0.5414
+      ],
+      [
+        "housing_old_brewhouse_laundry.txt",
+        0.537
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at Halden Hall?",
+    "accepted": [
+      "dining_halden_hall.txt",
+      "dining_halden_hall_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_halden_hall_followup.txt",
+        0.1909
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.2596
+      ],
+      [
+        "dining_pellew_dining_hall_followup.txt",
+        0.3093
+      ],
+      [
+        "dining_pellew_dining_hall.txt",
+        0.4324
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.4629
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at Kestrel Commons?",
+    "accepted": [
+      "dining_kestrel_commons.txt",
+      "dining_kestrel_commons_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_kestrel_commons_followup.txt",
+        0.1832
+      ],
+      [
+        "dining_kestrel_commons.txt",
+        0.3119
+      ],
+      [
+        "transit_walking.txt",
+        0.4317
+      ],
+      [
+        "dining_the_ridgeway_cafe_followup.txt",
+        0.3731
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.4788
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at North Kitchen?",
+    "accepted": [
+      "dining_north_kitchen.txt",
+      "dining_north_kitchen_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_north_kitchen_followup.txt",
+        0.2962
+      ],
+      [
+        "dining_north_kitchen.txt",
+        0.3498
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.4354
+      ],
+      [
+        "dining_the_ridgeway_cafe_followup.txt",
+        0.3362
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.5212
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at Pellew Dining Hall?",
+    "accepted": [
+      "dining_pellew_dining_hall.txt",
+      "dining_pellew_dining_hall_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_pellew_dining_hall_followup.txt",
+        0.1771
+      ],
+      [
+        "dining_pellew_dining_hall.txt",
+        0.281
+      ],
+      [
+        "dining_halden_hall_followup.txt",
+        0.2959
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.369
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.4448
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at The Atrium?",
+    "accepted": [
+      "dining_the_atrium.txt",
+      "dining_the_atrium_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_the_atrium_followup.txt",
+        0.3048
+      ],
+      [
+        "dining_the_atrium.txt",
+        0.3633
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.5016
+      ],
+      [
+        "dining_the_ridgeway_cafe_followup.txt",
+        0.4099
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.5137
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at The Ridgeway Cafe?",
+    "accepted": [
+      "dining_the_ridgeway_cafe.txt",
+      "dining_the_ridgeway_cafe_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_the_ridgeway_cafe_followup.txt",
+        0.1841
+      ],
+      [
+        "dining_the_ridgeway_cafe.txt",
+        0.3119
+      ],
+      [
+        "transit_walking.txt",
+        0.4637
+      ],
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.4541
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.4301
+      ]
+    ],
+    "rank": 1
+  },
+  {
+    "family": "dining",
+    "question": "How long is the lunch wait at Verrill Street Grill?",
+    "accepted": [
+      "dining_verrill_street_grill.txt",
+      "dining_verrill_street_grill_followup.txt"
+    ],
+    "top5": [
+      [
+        "dining_verrill_street_grill_followup.txt",
+        0.2177
+      ],
+      [
+        "dining_verrill_street_grill.txt",
+        0.3243
+      ],
+      [
+        "dining_the_ridgeway_cafe_followup.txt",
+        0.3577
+      ],
+      [
+        "dining_halden_hall.txt",
+        0.4341
+      ],
+      [
+        "dining_pellew_dining_hall_followup.txt",
+        0.4186
+      ]
+    ],
+    "rank": 1
+  }
+]
