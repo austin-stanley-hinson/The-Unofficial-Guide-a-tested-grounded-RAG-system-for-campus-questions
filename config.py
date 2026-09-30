@@ -38,6 +38,13 @@ CHUNK_OVERLAP = 0       # characters shared between neighbouring chunks
 
 TOP_K = 5               # how many chunks to pull back per question
 
+# Unit 2 improvement: "hybrid" ranks chunks by cosine distance AND BM25 keyword
+# score, fused by reciprocal rank. MiniLM barely separates "CS 210" from
+# "CS 340"; BM25 matches the exact code. "semantic" is the unit 1 behaviour.
+# Distances (and so the gate) are cosine either way — only the order changes.
+RETRIEVAL = os.getenv("AI201_RETRIEVAL", "hybrid")
+RRF_K = 60              # standard reciprocal-rank-fusion constant
+
 # Conversational memory (stretch): how many earlier turns `app.py chat` passes
 # along. Two is enough for "and what about...?" follow-ups without the prompt
 # filling up with old excerpts' answers.

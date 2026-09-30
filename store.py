@@ -18,6 +18,7 @@ rest of the project if they were wrong:
 """
 
 import os
+import re
 import shutil
 from dataclasses import dataclass
 
@@ -194,7 +195,9 @@ def search(
     """
     Retrieve the chunks closest in meaning to a question.
 
-    Returns them nearest-first, each with its distance.
+    Returns them nearest-first, each with its distance. With
+    config.RETRIEVAL = "hybrid" the order is the BM25 + cosine fused order
+    instead, and each distance is still the chunk's cosine distance.
 
     `category` (e.g. "housing") and `source` (an exact filename) narrow the
     search to chunks with that metadata. Filtering happens inside Chroma, so
@@ -237,11 +240,18 @@ def search(
     else:
         matching = collection.count()
 
+    hybrid = config.RETRIEVAL == "hybrid"
+
     raw = collection.query(
         query_embeddings=embed([question]),
-        n_results=min(top_k, matching),
+        # Hybrid fuses two rankings of every candidate, so it needs them all.
+        # campus_life is 88 chunks; this is cheap.
+        n_results=matching if hybrid else min(top_k, matching),
         where=where,
     )
+
+    if hybrid:
+        raw = _fuse_with_bm25(question, raw, top_k)
 
     results: list[Result] = []
     for text, meta, distance in zip(
@@ -257,6 +267,39 @@ def search(
             )
         )
     return results
+
+
+def _tokens(text: str) -> list[str]:
+    """Lowercase words and numbers, so "CS 210" becomes ["cs", "210"]."""
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+def _fuse_with_bm25(question: str, raw: dict, top_k: int) -> dict:
+    """
+    Re-rank Chroma's candidates by reciprocal rank fusion of two orderings:
+    cosine distance (already sorted) and BM25 keyword score.
+
+    Each chunk scores 1/(RRF_K + rank) from each list; the top_k by total
+    score come back. Distances are left as Chroma's cosine distances, so the
+    relevance gate still compares like with like.
+    """
+    from rank_bm25 import BM25Okapi
+
+    docs = raw["documents"][0]
+    bm25 = BM25Okapi([_tokens(d) for d in docs])
+    keyword = bm25.get_scores(_tokens(question))
+    by_keyword = sorted(range(len(docs)), key=lambda i: -keyword[i])
+
+    # Chroma returned the candidates in cosine order, so index i is rank i + 1.
+    fused = [1 / (config.RRF_K + i + 1) for i in range(len(docs))]
+    for rank, i in enumerate(by_keyword, start=1):
+        fused[i] += 1 / (config.RRF_K + rank)
+
+    keep = sorted(range(len(docs)), key=lambda i: -fused[i])[:top_k]
+    return {
+        field: [[raw[field][0][i] for i in keep]]
+        for field in ("documents", "metadatas", "distances")
+    }
 
 
 def index_exists(corpus: str | None = None, variant: str = "default") -> bool:

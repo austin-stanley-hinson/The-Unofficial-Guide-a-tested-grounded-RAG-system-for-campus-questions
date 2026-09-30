@@ -633,34 +633,106 @@ top 5 where the wrong course is #1 is set up to cite it.
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** hybrid search. `store.py::search` now scores every
+candidate chunk two ways: cosine distance (as before) and BM25 keyword score
+(`rank-bm25`, over lowercase word/number tokens, so "CS 340" becomes `cs`,
+`340`). `store.py::_fuse_with_bm25` merges the two rankings by reciprocal
+rank fusion: each chunk gets `1/(60 + rank)` from each list, and the top 5
+by total come back. Each result keeps its cosine distance, so the gate and
+the 0.7 cutoff weren't touched. `RETRIEVAL = "hybrid"` in `config.py`;
+`AI201_RETRIEVAL=semantic` reproduces unit 1 exactly (the sibling probe
+gives the same 25/32 either way). `RRF_K = 60` is the standard constant, and
+I didn't tune it.
 
-**Why I picked it:**
-
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+**Why I picked it:** the diagnosis says course questions lose to another
+course's identical template because the embedder barely encodes the course
+code, and BM25 scores exactly that token.
 
 ### Run Log — After
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
+Raw file: `results/run_2026-09-29_2226_after.md` (`run_eval.py::main`,
+`run_eval.py::check_out_of_scope`).
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Every chunk keeps its title, none under 150 chars | 88 of 88 | 88/88 | 88/88 | 88/88 | MET |
+| 5. Cited source is the right file, not a sibling | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
-**Did it help?**
+Criterion 4 is unchanged by construction: chunking wasn't touched and the
+index wasn't rebuilt.
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
+**Real output (run 1), where hybrid changed something:**
 
-     Milestone 4. -->
+```
+Is the CS 210 final exam curved?
+  before: course_cs_210_exams, course_engl_205_exams, course_cs_210, course_cs_340_exams, course_hist_118
+  after:  course_cs_210_exams, course_cs_210, course_cs_340_exams, course_cs_340, course_hist_118_exams
+  No, the CS 210 final exam is not curved.
+  Sources: course_cs_210_exams.txt, course_cs_210.txt
+
+How many hours a week does CS 210 take outside class?
+  before: course_cs_210_workload, course_stat_150_workload, course_cs_340, course_econ_101_workload, course_stat_150
+  after:  course_cs_210_workload, course_stat_150_workload, course_stat_150, course_econ_101_workload, course_cs_210
+  CS 210 takes 8 to 10 hours a week outside of class.
+  Source: course_cs_210.txt and course_cs_210_workload.txt
+
+  refused  (best distance 0.869)  What is the capital of Mongolia?          (was 0.825)
+  refused  (best distance 0.860)  What is the recommended dosage of ibuprofen for a headache?   (was 0.844)
+  refused  (best distance 0.900)  How do I write a for loop in Rust?        (was 0.896)
+  -> gate refused 5 of 5
+```
+
+(The before/after orders are from `store.py::search` in each mode. The
+answers are verbatim from the after run log.)
+
+**Did it help?** For the problem it targeted, yes. On my five criteria, it
+can't show: they were 5/5 before and 5/5 after, which is the "targets set
+low" point from the diagnosis again. The measurement that could move was the
+sibling probe (`results/sibling_probe_hybrid.json`):
+
+```
+                  semantic   hybrid
+exams      (9)      6/9       9/9
+workload   (9)      5/9       6/9
+laundry    (7)      7/7       7/7
+dining     (7)      7/7       7/7
+ALL rank 1 (32)    25/32     29/32
+ALL top 5  (32)    31/32     31/32
+```
+
+Exam questions went to 9/9. That's the course-code failure fixed where the
+code is the only difference. Workload improved less. CS 340 is still rank
+4, because CS 210's post shares the question's literal "outside class" and
+BM25 rewards that as much as `340`. HIST 118 is still missing from the top 5,
+because its post never says "hours", so neither method connects it. 29/32
+still misses the 30/32 I proposed in the diagnosis.
+
+**And it made something worse, which my criteria didn't catch.** I re-ran
+unit 1's borderline campus questions through the gate:
+
+```
+                                        semantic          hybrid
+Where can I print documents?            0.6802 pass   ->  0.7444 REFUSE
+Can I bring a car?                      0.6998 pass   ->  0.8286 REFUSE
+Is there a swimming pool on campus?     0.6254 pass   ->  0.6928 pass
+```
+
+Two questions the corpus does answer are now refused. The mechanism: BM25
+has no stemming ("print" ≠ "printing"), and "car" and "bring" appear nowhere
+in `admin_parking_permits.txt`. The right post scores 0 on keywords, so it
+ranks near the bottom of the BM25 list. RRF weights that no-signal list the
+same as the semantic one, so chunks that rank middling on both beat the
+semantic #1 and push it out of the top 5. The gate then only sees worse
+chunks. For short questions with no distinctive keyword, hybrid actively
+hurts. The same effect raised the out-of-corpus distances (Mongolia 0.825 →
+0.869): harmless there, but it's the same bug.
+
+I left it this way for the measured run, because the unit allows one change
+and a patch on top would make before/after impossible to read. The fix is in
+What's Still Broken.
 
 ## What's Still Broken
 
