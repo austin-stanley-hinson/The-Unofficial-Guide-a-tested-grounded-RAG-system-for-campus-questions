@@ -528,11 +528,24 @@ plus a check that every chunk starts with its document's first line:
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunks contain the answer (4 of 5) | MET | 5/5 in all three runs. Every expected file was in the top 5, and in fact at rank 1, except Kestrel, where `_followup` (which repeats the same "20 to 25 minutes") was #1 and the main post #2. |
+| 2 | Every answer names a source (5 of 5) | MET | 15 of 15 answers contained at least one `.txt` filename. No run dropped the citation. |
+| 3 | Gate stops out-of-corpus questions (4 of 5) | MET | 5/5 refused. The closest was Mongolia at 0.825, 0.125 over the cutoff. The ibuprofen question I worried about scored 0.844 and never got near `health_center.txt`. |
+| 4 | Every chunk keeps its title, none under 150 chars | MET | 88/88 chunks start with their document's first line, and the shortest is 178. Deterministic, so it can't vary run to run. |
+| 5 | Cited source is the right file, not a sibling (4 of 5) | MET | 15 of 15 answers named the expected file. The closest call is below. |
+
+**Where I argued the other side.** Criterion 5: the CS 210 exams answer
+cited `course_cs_210_exams.txt` *and* `course_cs_210.txt` (the overview) in
+all three runs, and the overview is a sibling. My criterion says naming
+*only* a sibling fails, and naming the expected file passes. The overview
+also genuinely contains "Midterms are curved, the final is not", so it isn't
+a wrong citation either. I kept MET. But I'll admit the criterion never said
+what to do with an extra, correct sibling, and I only noticed that now.
+The Kestrel answer citing `_followup` alongside the main post is the same
+case.
+
+No criterion is revised. All five could be measured as written, and none was
+missed, so there's nothing to revise for the right reason.
 
 ## Diagnoses
 
